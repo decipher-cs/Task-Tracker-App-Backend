@@ -34,7 +34,7 @@ db.connect((err) => {
 
 // Send every item as a response
 app.get("/todos", (req, res) => {
-    let sqlReqText = `SELECT * FROM todoList`
+    let sqlReqText = `SELECT * FROM items`
     db.query(sqlReqText, (err, result) => {
         if (err) {
             console.log("Error while querying database.")
@@ -45,7 +45,6 @@ app.get("/todos", (req, res) => {
             obj.isHidden = obj.isHidden == 1
             return obj
         })
-        console.log(newRes)
         res.status(200).send(newRes)
     })
 })
@@ -54,7 +53,7 @@ app.get("/todos", (req, res) => {
 app.post("/todos", (req, res) => {
     if ((req.body.length > 1) | (req.body.length < 1)) res.status(400)
     let data = req.body
-    let sqlInsertQuery = `INSERT todoList (uuid, todoText, isComplete, isHidden) VALUES(?, ?, ?, ?)`
+    let sqlInsertQuery = `INSERT items (uuid, todoText, isComplete, isHidden) VALUES(?, ?, ?, ?)`
     db.query(
         sqlInsertQuery,
         [data.uuid, data.todoText, data.isComplete, data.isHidden],
@@ -67,7 +66,7 @@ app.post("/todos", (req, res) => {
 
 // Delete every item marked as completed from the database
 app.post("/todos/removeCompleted", (req, res) => {
-    let sqldelquery = `delete from todoList where isComplete = "1"`
+    let sqldelquery = `delete from items where isComplete = "1"`
     db.query(sqldelquery, (err) => {
         if (err) throw err
         res.status(200).end("deleted")
@@ -79,7 +78,7 @@ app.post("/todos/updateTodo", (req, res) => {
     let tempObj = req.body[0]
     tempObj.isHidden = tempObj.isHidden == true ? 1 : 0
     tempObj.isComplete = tempObj.isComplete == true ? 1 : 0
-    let sqlupdateQuery = `update todoList set todoText = "${tempObj.todoText}", isHidden = "${tempObj.isHidden}", isComplete = "${tempObj.isComplete}" where uuid = '${tempObj.uuid}'`
+    let sqlupdateQuery = `update items set todoText = "${tempObj.todoText}", isHidden = "${tempObj.isHidden}", isComplete = "${tempObj.isComplete}" where uuid = '${tempObj.uuid}'`
     db.query(sqlupdateQuery, (err) => {
         if (err) throw err
         res.status(200).end("updated")
@@ -88,7 +87,7 @@ app.post("/todos/updateTodo", (req, res) => {
 
 // Delete a single item from database
 app.post("/todos/:uuid", (req, res) => {
-    let sqldelquery = `delete from todoList where uuid = '${req.params.uuid}'`
+    let sqldelquery = `delete from items where uuid = '${req.params.uuid}'`
     db.query(sqldelquery, (err) => {
         if (err) throw err
         res.status(200).end("deleted")
