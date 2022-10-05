@@ -3,27 +3,28 @@ import cors from "cors"
 import express from "express"
 import dotenv from "dotenv"
 
-const dot = dotenv.config()
+dotenv.config()
+
 const app = express()
+const PORT = process.env.PORT || 8080
+const db = mysql.createConnection(process.env.DATABASE_URL)
+
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-const PORT = process.env.PORT || 8080
 
-const db = mysql.createConnection(process.env.DATABASE_URL)
-// db.end() // To drop the connection. need to check on usage details.
-
-// Config to connect to localhost
+// Config to connect to localhost during and for backend testing.
 // const db = mysql.createConnection({
 //     host: "localhost",
 //     user: "root",
 //     password: "password",
 //     database: "todos",
 // })
+
 db.connect((err) => {
     err
         ? console.log(
-              "Error encountered while connecting to mySQL database.",
+              "Error encountered while connecting to mySQL database on PlanetScale.",
               err
           )
         : console.log(
@@ -40,7 +41,7 @@ app.get("/todos", (req, res) => {
             console.log("Error while querying database.")
             throw err
         }
-        let newRes = result.map((obj, index) => {
+        let newRes = result.map((obj) => {
             obj.isComplete = obj.isComplete == 1
             obj.isHidden = obj.isHidden == 1
             return obj
@@ -94,4 +95,4 @@ app.post("/todos/:uuid", (req, res) => {
     })
 })
 
-app.listen(PORT, () => console.log("Your app is running on port ", PORT))
+app.listen(PORT, () => console.log("Node alive and listening. Your app is running on port ", PORT))
