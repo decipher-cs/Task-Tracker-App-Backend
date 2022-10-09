@@ -24,23 +24,17 @@ app.use(express.urlencoded({ extended: true }))
 db.connect((err) => {
     err
         ? console.log(
-              "Error encountered while connecting to mySQL database on PlanetScale.",
+              "Error encountered while connecting to mySQL database",
               err
           )
-        : console.log(
-              "Connection to mySQL established.",
-              "Connected to PlanetScale!"
-          )
+        : console.log("Connection to mySQL database established.")
 })
 
 // Send every item as a response
 app.get("/todos", (req, res) => {
     let sqlReqText = `SELECT * FROM items`
     db.query(sqlReqText, (err, result) => {
-        if (err) {
-            console.log("Error while querying database.")
-            throw err
-        }
+        if (err) res.status(400).send("Couldn't get items form server. " + err)
         let newRes = result.map((obj) => {
             obj.isComplete = obj.isComplete == 1
             obj.isHidden = obj.isHidden == 1
@@ -59,8 +53,8 @@ app.post("/todos", (req, res) => {
         sqlInsertQuery,
         [data.uuid, data.todoText, data.isComplete, data.isHidden],
         (err) => {
-            if (err) throw err
-            res.status(200).end("Deleted")
+            if (err) res.status(400).end("Unable to insert data. " + err)
+            res.status(200).end("Inserted")
         }
     )
 })
@@ -69,8 +63,8 @@ app.post("/todos", (req, res) => {
 app.post("/todos/removeCompleted", (req, res) => {
     let sqldelquery = `delete from items where isComplete = "1"`
     db.query(sqldelquery, (err) => {
-        if (err) throw err
-        res.status(200).end("deleted")
+        if (err) res.status(400).end("Unable to remove completed items. " + err)
+        res.status(200).end("Removed all completed")
     })
 })
 
@@ -81,8 +75,8 @@ app.post("/todos/updateTodo", (req, res) => {
     tempObj.isComplete = tempObj.isComplete == true ? 1 : 0
     let sqlupdateQuery = `update items set todoText = "${tempObj.todoText}", isHidden = "${tempObj.isHidden}", isComplete = "${tempObj.isComplete}" where uuid = '${tempObj.uuid}'`
     db.query(sqlupdateQuery, (err) => {
-        if (err) throw err
-        res.status(200).end("updated")
+        if (err) res.status(400).end("Unable to update. " + err)
+        res.status(200).end("Updated item")
     })
 })
 
@@ -90,9 +84,11 @@ app.post("/todos/updateTodo", (req, res) => {
 app.post("/todos/:uuid", (req, res) => {
     let sqldelquery = `delete from items where uuid = '${req.params.uuid}'`
     db.query(sqldelquery, (err) => {
-        if (err) throw err
-        res.status(200).end("deleted")
+        if (err) res.status(400).end("Not deleted. " + err)
+        res.status(200).end("Deleted")
     })
 })
 
-app.listen(PORT, () => console.log("Node alive and listening. Your app is running on port ", PORT))
+app.listen(PORT, () =>
+    console.log("Node alive and listening. Your app is running on port", PORT)
+)
