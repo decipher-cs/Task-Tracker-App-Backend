@@ -70,7 +70,7 @@ app.post("/todos/removeCompleted", (req, res) => {
 
 // editSingleItemInServer: edit properties of a single item on the database
 app.post("/todos/updateTodo", (req, res) => {
-    let tempObj = req.body[0]
+    let tempObj = req.body
     tempObj.isHidden = tempObj.isHidden == true ? 1 : 0
     tempObj.isComplete = tempObj.isComplete == true ? 1 : 0
     let sqlupdateQuery = `update items set todoText = "${tempObj.todoText}", isHidden = "${tempObj.isHidden}", isComplete = "${tempObj.isComplete}" where uuid = '${tempObj.uuid}'`
