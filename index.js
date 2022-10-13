@@ -9,7 +9,11 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 8080
 const db = mysql.createConnection(process.env.DATABASE_URL)
-const whitelist = ['http://localhost:5173', 'https://doubtful-ox-button.cyclic.app']
+const whitelist = [
+    'http://localhost:5173',
+    'https://doubtful-ox-button.cyclic.app',
+    'https://golden-liger-9ba371.netlify.app/',
+]
 const corsOptions = {
     credentials: true,
     origin: (origin, callback) => {
