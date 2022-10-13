@@ -10,9 +10,9 @@ const app = express()
 const PORT = process.env.PORT || 8080
 const db = mysql.createConnection(process.env.DATABASE_URL)
 const whitelist = [
+    'https://golden-liger-9ba371.netlify.app',
     'http://localhost:5173',
     'https://doubtful-ox-button.cyclic.app',
-    'https://golden-liger-9ba371.netlify.app/',
 ]
 const corsOptions = {
     credentials: true,
@@ -47,7 +47,6 @@ app.get('/todos', (req, res) => {
     } = req
     cookie = cookie.trim().split('=')[1]
     let sqlReqText = `SELECT * FROM items where owner = '${cookie}'`
-    console.log(sqlReqText)
     db.query(sqlReqText, (err, result) => {
         if (err) res.status(400).send("Couldn't get items form server. " + err)
         let newRes = result.map((obj) => {
