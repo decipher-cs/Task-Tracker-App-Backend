@@ -46,7 +46,9 @@ app.get('/todos', (req, res) => {
     let {
         headers: { cookie },
     } = req
+                console.log('value of cookie is : ', cookie)
     cookie = cookie.trim().split('=')[1]
+                console.log('value of cookie after split is : ', cookie)
     let sqlReqText = `SELECT * FROM items where owner = '${cookie}'`
     db.query(sqlReqText, (err, result) => {
         if (err) res.status(400).send("Couldn't get items form server. " + err)
