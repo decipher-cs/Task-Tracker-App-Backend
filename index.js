@@ -9,10 +9,7 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 8080
 const db = mysql.createConnection(process.env.DATABASE_URL)
-const whitelist = [
-    'https://golden-liger-9ba371.netlify.app',
-    'http://localhost:5173',
-]
+const whitelist = ['https://golden-liger-9ba371.netlify.app', 'http://localhost:5173']
 const corsOptions = {
     credentials: true,
     origin: (origin, callback) => {
@@ -43,12 +40,12 @@ db.connect((err) => {
 
 // Send every item as a response
 app.get('/todos', (req, res) => {
-    let {
-        headers: { cookie },
-    } = req
-    console.log('value of cookie is : ', cookie, 'and parser says: ', req.cookies)
-    cookie = cookie.trim().split('=')[1]
-    console.log('value of cookie after split is : ', cookie)
+    // let {
+    //     headers: { cookie },
+    // } = req
+    console.log('req.headers.cookie : ', req.headers.cookie, "and parser's req.cookie is : ", req.cookies)
+    let cookie = req.headers.cookie.trim().split('=')[1]
+    console.log('value of cookie after trim and split is : ', cookie)
     let sqlReqText = `SELECT * FROM items where owner = '${cookie}'`
     db.query(sqlReqText, (err, result) => {
         if (err) res.status(400).send("Couldn't get items form server. " + err)
