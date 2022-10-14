@@ -39,6 +39,14 @@ db.connect((err) => {
 })
 
 // Send every item as a response
+
+app.get('/', (req, res) => {
+    console.log('req.headers.cookie : ', req.headers.cookie, "and parser's req.cookie is : ", req.cookies)
+    let cookie = req.headers.cookie.trim().split('=')[1]
+    console.log('value of cookie after trim and split is : ', cookie)
+    res.status(200).end()
+})
+
 app.get('/todos', (req, res) => {
     // let {
     //     headers: { cookie },
