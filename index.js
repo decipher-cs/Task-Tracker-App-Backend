@@ -17,6 +17,7 @@ const whitelist = [
 const corsOptions = {
     credentials: true,
     origin: (origin, callback) => {
+        console.log('origin is : ', origin)
         if (whitelist.includes(origin)) return callback(null, true)
         callback(new Error('Not allowed by CORS'))
     },
@@ -49,6 +50,7 @@ app.get('/todos', (req, res) => {
     let sqlReqText = `SELECT * FROM items where owner = '${cookie}'`
     db.query(sqlReqText, (err, result) => {
         if (err) res.status(400).send("Couldn't get items form server. " + err)
+        if (!result) res.status(200).send()
         let newRes = result.map((obj) => {
             obj.isComplete = obj.isComplete == 1
             obj.isHidden = obj.isHidden == 1
