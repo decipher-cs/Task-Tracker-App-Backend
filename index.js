@@ -3,26 +3,28 @@ import cors from 'cors'
 import express from 'express'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
+app.use(cookieParser())
+import cookie from 'cookie'
 
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 8080
 const db = mysql.createConnection(process.env.DATABASE_URL)
-const whitelist = ['https://golden-liger-9ba371.netlify.app', 'http://localhost:5173']
+const whitelist = ['https://golden-liger-9ba371.netlify.app', 'http://192.168.1.17:5173', 'http://localhost:5173']
 const corsOptions = {
     credentials: true,
+    optionSuccessStatus: 200,
     origin: (origin, callback) => {
         console.log('origin is : ', origin)
         if (whitelist.includes(origin)) return callback(null, true)
         callback(new Error('Not allowed by CORS'))
     },
 }
-app.use(cors(corsOptions))
 app.use(cookieParser())
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-// app.use(cookies())
 
 // Config to connect to localhost during and for backend testing.
 // const db = mysql.createConnection({
@@ -40,10 +42,12 @@ db.connect((err) => {
 
 // Send every item as a response
 
-app.get('/', (req, res) => {
+app.get('', (req, res) => {
+    console.log('req.header files : ', req.headers)
     console.log('req.headers.cookie : ', req.headers.cookie, "and parser's req.cookie is : ", req.cookies)
-    let cookie = req.headers.cookie.trim().split('=')[1]
-    console.log('value of cookie after trim and split is : ', cookie)
+    console.log('Signed cookie : ', req.signedCookies)
+    // let cookie = req.headers.cookie.trim().split('=')[1]
+    // console.log('value of cookie after trim and split is : ', cookie)
     res.status(200).end()
 })
 
