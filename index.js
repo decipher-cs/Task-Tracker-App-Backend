@@ -2,7 +2,7 @@ import mysql from 'mysql2'
 import cors from 'cors'
 import express from 'express'
 import dotenv from 'dotenv'
-// import cookies from 'cookie-parser'
+import cookieParser from 'cookie-parser'
 
 dotenv.config()
 
@@ -12,7 +12,6 @@ const db = mysql.createConnection(process.env.DATABASE_URL)
 const whitelist = [
     'https://golden-liger-9ba371.netlify.app',
     'http://localhost:5173',
-    'https://doubtful-ox-button.cyclic.app',
 ]
 const corsOptions = {
     credentials: true,
@@ -23,6 +22,7 @@ const corsOptions = {
     },
 }
 app.use(cors(corsOptions))
+app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 // app.use(cookies())
@@ -46,9 +46,9 @@ app.get('/todos', (req, res) => {
     let {
         headers: { cookie },
     } = req
-                console.log('value of cookie is : ', cookie)
+    console.log('value of cookie is : ', cookie, 'and parser says: ', req.cookies)
     cookie = cookie.trim().split('=')[1]
-                console.log('value of cookie after split is : ', cookie)
+    console.log('value of cookie after split is : ', cookie)
     let sqlReqText = `SELECT * FROM items where owner = '${cookie}'`
     db.query(sqlReqText, (err, result) => {
         if (err) res.status(400).send("Couldn't get items form server. " + err)
