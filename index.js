@@ -10,7 +10,7 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 8080
 const db = mysql.createConnection(process.env.DATABASE_URL)
-const whitelist = ['https://golden-liger-9ba371.netlify.app', 'http://192.168.1.17:5173', 'http://localhost:5173']
+const whitelist = ['https://golden-liger-9ba371.netlify.app', 'http://192.168.1.17:5173', 'http://localhost:5173', 'http://localhost:4173']
 const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
