@@ -18,11 +18,10 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     optionSuccessStatus: 200,
-    origin: '*',
-    // origin: (origin, callback) => {
-    //     if (whitelist.includes(origin)) return callback(null, true)
-    //     callback(new Error('Not allowed by CORS'))
-    // },
+    origin: (origin, callback) => {
+        if (whitelist.includes(origin)) return callback(null, true)
+        callback(new Error('Not allowed by CORS'))
+    },
 }
 app.use(cors(corsOptions))
 app.use(express.json())
