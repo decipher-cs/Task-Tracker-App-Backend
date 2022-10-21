@@ -50,12 +50,11 @@ app.get('/todos/:userId', (req, res) => {
 
 // sync everything with server
 app.post('/todos/sync', async (req, res) => {
-    // 1) get data from fontend
+    // 1) GET DATA FROM FONTEND
     let { userId = -1, todos = [] } = req.body
 
-    // 2) get data from db
+    // 2) GET DATA FROM DB
     let remoteData = []
-    userId = '57ac23c5-bdff-426a-9dd0-e114f752ff67'
     remoteData = await new Promise((resolve, reject) => {
         const sqlReqData = `SELECT * FROM items where owner = '${userId}'`
         db.query(sqlReqData, (err, dataPayload) => {
