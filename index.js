@@ -2,36 +2,31 @@ import mysql from 'mysql2'
 import cors from 'cors'
 import express from 'express'
 import dotenv from 'dotenv'
-import cookieParser from 'cookie-parser'
-import cookie from 'cookie'
 
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 8080
 const db = mysql.createConnection(process.env.DATABASE_URL)
-const whitelist = ['https://golden-liger-9ba371.netlify.app', 'http://192.168.1.17:5173', 'http://localhost:5173', 'http://localhost:4173']
+const whitelist = [
+    'https://golden-liger-9ba371.netlify.app',
+    'http://192.168.1.17:5173',
+    'http://localhost:5173',
+    'http://localhost:4173',
+]
 const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     optionSuccessStatus: 200,
-    origin: (origin, callback) => {
-        if (whitelist.includes(origin)) return callback(null, true)
-        callback(new Error('Not allowed by CORS'))
-    },
+    origin: '*',
+    // origin: (origin, callback) => {
+    //     if (whitelist.includes(origin)) return callback(null, true)
+    //     callback(new Error('Not allowed by CORS'))
+    // },
 }
 app.use(cors(corsOptions))
-app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
-// Config to connect to localhost during and for backend testing.
-// const db = mysql.createConnection({
-//     host: "localhost",
-//     user: "root",
-//     password: "password",
-//     database: "todos",
-// })
 
 db.connect((err) => {
     err
@@ -52,6 +47,50 @@ app.get('/todos/:userId', (req, res) => {
         })
         res.status(200).send(newRes)
     })
+})
+
+// sync everything with server
+app.post('/todos/sync', async (req, res) => {
+    // 1) get data from fontend
+    let { userId = -1, todos = [] } = req.body
+
+    // 2) get data from db
+    let remoteData = []
+    userId = '57ac23c5-bdff-426a-9dd0-e114f752ff67'
+    remoteData = await new Promise((resolve, reject) => {
+        const sqlReqData = `SELECT * FROM items where owner = '${userId}'`
+        db.query(sqlReqData, (err, dataPayload) => {
+            if (err) res.status(500).end('Unable to get data from database. ERROR : ' + err)
+            resolve(
+                dataPayload
+                    ? dataPayload.map((obj) => {
+                          obj.isComplete = obj.isComplete == 1
+                          obj.isHidden = obj.isHidden == 1
+                          return obj
+                      })
+                    : []
+            )
+        })
+    })
+
+    // 3) COMPARE DATA
+    let missingFromBackend = todos.filter((item) => !remoteData.includes(item))
+    let missingFromFrontend = remoteData.filter((item) => !todos.includes(item))
+
+    // 4) IF DATA MISSING FROM DB/ FRONT-END SEND A REQUEST TO SAVE IT
+    if (missingFromBackend.length) {
+        let sqlInsertQuery = `INSERT items (uuid, todoText, isComplete, isHidden, owner) VALUES `
+        missingFromBackend.forEach((item) => {
+            sqlInsertQuery += `('${item.uuid}', '${item.todoText}','${item.isComplete ? 1 : 0}','${
+                item.isHidden ? 1 : 0
+            }','${userId}'),`
+        })
+        sqlInsertQuery = sqlInsertQuery.slice(0, -1)
+        db.query(sqlInsertQuery, (err) => {
+            if (err) res.status(400).end('Unable to insert data. ' + err)
+        })
+    }
+    res.status(200).send(missingFromFrontend)
 })
 
 // Add a single item to the database
@@ -99,3 +138,14 @@ app.post('/todos/:uuid', (req, res) => {
 })
 
 app.listen(PORT, () => console.log('Node alive and listening. Your app is running on port', PORT))
+
+// app.post('/todos/sync', (req, res) => {
+//     userId = '57ac23c5-bdff-426a-9dd0-e114f752ff67'
+//     remoteData = []
+//     const sqlReqData = `SELECT * FROM items where owner = '${userId}'`
+//     db.query(sqlReqData, (err, dataPayload) => {
+//         if (err) res.status(500).end('Unable to get data from database. ERROR : ' + err)
+//         remoteData = dataPayload
+//     })
+//     // some stuff done to remoteData
+// })
