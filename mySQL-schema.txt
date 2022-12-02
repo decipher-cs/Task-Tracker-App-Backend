@@ -1,0 +1,17 @@
+let connection = mysql.createConnection({
+    host:"localhost",
+    user:"root",
+    password:"password",
+    database : "todo-app"
+})
+
+CREATE TABLE `items` (
+	`uuid` varchar(36) NOT NULL DEFAULT '-1',
+	`todoText` tinytext NOT NULL,
+	`isHidden` tinyint(1) NOT NULL DEFAULT '0',
+	`isComplete` tinyint(1) NOT NULL DEFAULT '0',
+	`owner` varchar(36) NOT NULL DEFAULT '-1',
+	PRIMARY KEY (`uuid`)
+) ENGINE InnoDB,
+  CHARSET utf8mb4,
+  COLLATE utf8mb4_0900_ai_ci;
