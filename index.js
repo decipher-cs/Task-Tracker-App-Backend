@@ -7,7 +7,14 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 8080
-const db = mysql.createConnection(process.env.DATABASE_URL)
+// const db = mysql.createConnection(process.env.DATABASE_URL)
+
+const db = mysql.createConnection({
+    host:"localhost",
+    user:"root",
+    password:"password",
+    database : "todoApp"
+})
 const whitelist = [
     'https://golden-liger-9ba371.netlify.app',
     'http://192.168.1.17:5173',

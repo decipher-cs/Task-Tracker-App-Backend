@@ -2,8 +2,13 @@ let connection = mysql.createConnection({
     host:"localhost",
     user:"root",
     password:"password",
-    database : "todo-app"
+    database : "todoApp"
 })
+
+sudo systemctl start mysql
+mysql -u root -ppassword
+create database todoApp;
+use todoApp;
 
 CREATE TABLE `items` (
 	`uuid` varchar(36) NOT NULL DEFAULT '-1',
@@ -15,3 +20,4 @@ CREATE TABLE `items` (
 ) ENGINE InnoDB,
   CHARSET utf8mb4,
   COLLATE utf8mb4_0900_ai_ci;
+
