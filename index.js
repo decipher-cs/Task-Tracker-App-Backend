@@ -36,7 +36,7 @@ db.connect((err) => {
 // Send every item as a response
 app.get('/todos/:userId', (req, res) => {
     let sqlReqText = `SELECT * FROM items where owner = '${req.params.userId}'`
-    db.query(sqlReqText, (err, result) => {
+    db.execute(sqlReqText, (err, result) => {
         if (err) res.status(400).send("Couldn't get items form server. " + err)
         if (!result) res.status(200).send()
         let newRes = result.map((obj) => {
@@ -57,7 +57,7 @@ app.post('/todos/sync', async (req, res) => {
     let remoteData = []
     remoteData = await new Promise((resolve, reject) => {
         const sqlReqData = `SELECT * FROM items where owner = '${userId}'`
-        db.query(sqlReqData, (err, dataPayload) => {
+        db.execute(sqlReqData, (err, dataPayload) => {
             if (err) res.status(500).end('Unable to get data from database. ERROR : ' + err)
             resolve(
                 dataPayload
@@ -96,7 +96,7 @@ app.post('/todos', (req, res) => {
     if ((req.body.length > 1) | (req.body.length < 1)) res.status(400)
     let data = req.body
     let sqlInsertQuery = `INSERT items (uuid, todoText, isComplete, isHidden, owner) VALUES(?, ?, ?, ?, ?)`
-    db.query(sqlInsertQuery, [data.uuid, data.todoText, data.isComplete, data.isHidden, data.userId], (err) => {
+    db.execute(sqlInsertQuery, [data.uuid, data.todoText, data.isComplete, data.isHidden, data.userId], (err) => {
         if (err) res.status(400).end('Unable to insert data. ' + err)
         res.status(200).end('Inserted')
     })
@@ -106,7 +106,7 @@ app.post('/todos', (req, res) => {
 app.post('/todos/removeCompleted', (req, res) => {
     let { userId } = req.body
     let sqldelquery = `delete from items where isComplete = "1" and owner = '${userId}'`
-    db.query(sqldelquery, (err) => {
+    db.execute(sqldelquery, (err) => {
         if (err) res.status(400).end('Unable to remove completed items. ' + err)
         res.status(200).end('Removed all completed')
     })
@@ -119,7 +119,7 @@ app.post('/todos/updateTodo', (req, res) => {
     tempObj.isHidden = tempObj.isHidden == true ? 1 : 0
     tempObj.isComplete = tempObj.isComplete == true ? 1 : 0
     let sqlupdateQuery = `update items set todoText = "${tempObj.todoText}", isHidden = "${tempObj.isHidden}", isComplete = "${tempObj.isComplete}" where uuid = '${tempObj.uuid}' and owner = '${userId}' `
-    db.query(sqlupdateQuery, (err) => {
+    db.execute(sqlupdateQuery, (err) => {
         if (err) res.status(400).end('Unable to update. ' + err)
         res.status(200).end('Updated item')
     })
@@ -129,7 +129,7 @@ app.post('/todos/updateTodo', (req, res) => {
 app.post('/todos/:uuid', (req, res) => {
     let { userId } = req.body
     let sqldelquery = `delete from items where uuid = '${req.params.uuid}' and owner = '${userId}'`
-    db.query(sqldelquery, (err) => {
+    db.execute(sqldelquery, (err) => {
         if (err) res.status(400).end('Not deleted. ' + err)
         res.status(200).end('Deleted')
     })
